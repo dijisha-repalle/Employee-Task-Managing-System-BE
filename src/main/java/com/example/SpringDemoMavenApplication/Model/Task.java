@@ -1,12 +1,15 @@
 package com.example.SpringDemoMavenApplication.Model;
 
 import jakarta.persistence.*;
-import org.springframework.data.annotation.Id;
+import lombok.Data;
 
 import java.time.LocalDate;
 
 @Entity
+@Data
+@Table(name = "task")
 public class Task {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
