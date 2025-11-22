@@ -1,6 +1,7 @@
 package com.example.SpringDemoMavenApplication.ServiceImpl;
 
 import com.example.SpringDemoMavenApplication.Model.Task;
+import com.example.SpringDemoMavenApplication.Model.TaskDTO;
 import com.example.SpringDemoMavenApplication.Repository.TaskRepository;
 import com.example.SpringDemoMavenApplication.Service.TaskService;
 import org.springframework.stereotype.Service;
