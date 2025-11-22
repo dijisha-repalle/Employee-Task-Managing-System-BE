@@ -23,6 +23,6 @@ public class Employee {
     private LocalDate joiningDate;
 
     @Enumerated(EnumType.STRING)
-    private User role;
+    private Role role;
 
 }

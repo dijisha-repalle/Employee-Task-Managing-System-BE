@@ -2,10 +2,11 @@ package com.example.SpringDemoMavenApplication.Model;
 
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import lombok.Data;
 
 import java.time.LocalDate;
-
-public class TaskDTO {
+@Data
+public class CreateTaskRequestDTO {
 
     private String title;
     private String description;
