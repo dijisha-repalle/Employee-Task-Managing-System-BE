@@ -1,5 +1,8 @@
 package com.example.SpringDemoMavenApplication.ServiceImpl;
 
+import com.example.SpringDemoMavenApplication.Exception.EmployeeNotFoundexception;
+import com.example.SpringDemoMavenApplication.Exception.TaskAssignmentException;
+import com.example.SpringDemoMavenApplication.Exception.TaskNotFoundException;
 import com.example.SpringDemoMavenApplication.Model.*;
 import com.example.SpringDemoMavenApplication.Repository.EmployeeRepository;
 import com.example.SpringDemoMavenApplication.Repository.TaskRepository;
@@ -7,6 +10,10 @@ import com.example.SpringDemoMavenApplication.Service.TaskService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
+
+import static com.example.SpringDemoMavenApplication.Constants.EmployeeConstants.*;
+
 @Service
 public class TaskServiceImpl implements TaskService {
 
@@ -59,57 +66,108 @@ public class TaskServiceImpl implements TaskService {
         return taskRepository.findByAssignedToIsNull();
     }
 
+    @Override
+    public Task assignTask(Long taskId, AssignTaskRequest request) {
+        // Fetch entities first
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new TaskNotFoundException(TASK_NOT_FOUND + taskId));
+
+        Employee assignedTo = employeeRepository.findById(request.getAssignedTo())
+                .orElseThrow(() -> new EmployeeNotFoundexception(ASSIGNEE_NOT_FOUND));
+
+        Employee assignedBy = employeeRepository.findById(request.getAssignedBy())
+                .orElseThrow(() -> new EmployeeNotFoundexception(ASSIGNER_NOT_FOUND));
+
+        // Validate in logical order
+        validateAssignment(assignedBy, assignedTo, task);
+
+        // Perform assignment
+        task.setAssignedTo(assignedTo);
+        task.setAssignedBy(assignedBy);
+        task.setStatus(TaskStatus.IN_PROGRESS);
+
+        return taskRepository.save(task);
+    }
+
+    private void validateAssignment(Employee assignedBy, Employee assignedTo, Task task) {
+        // 1. Check assigner permissions
+        if (!Set.of(Role.MANAGER, Role.ADMIN).contains(assignedBy.getRole())) {
+            throw new TaskAssignmentException(ONLY_MANAGER_OR_ADMIN_CAN_ASSIGN);
+        }
+
+        // 2. Check assignee role
+        if (assignedTo.getRole() != Role.EMPLOYEE) {
+            throw new TaskAssignmentException(ONLY_ASSIGN_TO_EMPLOYEE);
+        }
+
+        // 3. Check self-assignment
+        if (assignedBy.getId().equals(assignedTo.getId())) {
+            throw new TaskAssignmentException(NO_SELF_ASSIGNMENT);
+        }
+
+        // 4. Check double assignment
+        if (task.getAssignedTo() != null) {
+            throw new TaskAssignmentException(TASK_ALREADY_ASSIGNED);
+        }
+
+        // 5. Check department restriction for managers
+        if (assignedBy.getRole() == Role.MANAGER &&
+                !assignedBy.getDepartment().equals(assignedTo.getDepartment())) {
+            throw new TaskAssignmentException(MANAGER_DEPARTMENT_RESTRICTION);
+        }
+    }
+
     /**
      * ASSIGN TASK TO EMPLOYEE
      * @param taskId
      * @param request
      * @return
      */
-    @Override
-    public Task assignTask(Long taskId, AssignTaskRequest request) {
-        Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found: " + taskId));
-
-        Employee assignedTo = employeeRepository.findById(request.getAssignedTo())
-                .orElseThrow(() -> new RuntimeException("Assigned-to employee does not exist"));
-
-        Employee assignedBy = employeeRepository.findById(request.getAssignedBy())
-                .orElseThrow(() -> new RuntimeException("Assigned-by user does not exist"));
-
-        // 1️⃣ Only MANAGER or ADMIN can assign tasks
-        if (!(assignedBy.getRole().equals(Role.MANAGER) || assignedBy.getRole().equals(Role.ADMIN))) {
-            throw new RuntimeException("Only MANAGER or ADMIN can assign tasks");
-        }
-
-        // 2️⃣ You cannot assign a task to MANAGER or ADMIN
-        if (!(assignedTo.getRole().equals(Role.EMPLOYEE))) {
-            throw new RuntimeException("Task can only be assigned to EMPLOYEE");
-        }
-
-        // 3️⃣ Prevent self assignment
-        if (assignedBy.getId().equals(assignedTo.getId())) {
-            throw new RuntimeException("Users cannot assign tasks to themselves");
-        }
-
-        // 4️⃣ Prevent double assignment
-        if (task.getAssignedTo() != null) {
-            throw new RuntimeException("Task is already assigned");
-        }
-
-        // 5️⃣ Everything is valid → assign
-        task.setAssignedTo(assignedTo);
-        task.setAssignedBy(assignedBy);
-        task.setStatus(TaskStatus.IN_PROGRESS);
-
-        // 6️⃣ Manager can assign tasks ONLY to their department
-        if (assignedBy.getRole().equals(Role.MANAGER)) {
-            if (!assignedBy.getDepartment().equals(assignedTo.getDepartment())) {
-                throw new RuntimeException("Manager can assign tasks only within their department");
-            }
-        }
-
-        return taskRepository.save(task);
-    }
+//    @Override
+//    public Task assignTask(Long taskId, AssignTaskRequest request) {
+//        Task task = taskRepository.findById(taskId)
+//                .orElseThrow(() -> new RuntimeException("Task not found: " + taskId));
+//
+//        Employee assignedTo = employeeRepository.findById(request.getAssignedTo())
+//                .orElseThrow(() -> new RuntimeException("Assigned-to employee does not exist"));
+//
+//        Employee assignedBy = employeeRepository.findById(request.getAssignedBy())
+//                .orElseThrow(() -> new RuntimeException("Assigned-by user does not exist"));
+//
+//        // 1️⃣ Only MANAGER or ADMIN can assign tasks
+//        if (!(assignedBy.getRole().equals(Role.MANAGER) || assignedBy.getRole().equals(Role.ADMIN))) {
+//            throw new RuntimeException("Only MANAGER or ADMIN can assign tasks");
+//        }
+//
+//        // 2️⃣ You cannot assign a task to MANAGER or ADMIN
+//        if (!(assignedTo.getRole().equals(Role.EMPLOYEE))) {
+//            throw new RuntimeException("Task can only be assigned to EMPLOYEE");
+//        }
+//
+//        // 3️⃣ Prevent self assignment
+//        if (assignedBy.getId().equals(assignedTo.getId())) {
+//            throw new RuntimeException("Users cannot assign tasks to themselves");
+//        }
+//
+//        // 4️⃣ Prevent double assignment
+//        if (task.getAssignedTo() != null) {
+//            throw new RuntimeException("Task is already assigned");
+//        }
+//
+//        // 5️⃣ Everything is valid → assign
+//        task.setAssignedTo(assignedTo);
+//        task.setAssignedBy(assignedBy);
+//        task.setStatus(TaskStatus.IN_PROGRESS);
+//
+//        // 6️⃣ Manager can assign tasks ONLY to their department
+//        if (assignedBy.getRole().equals(Role.MANAGER)) {
+//            if (!assignedBy.getDepartment().equals(assignedTo.getDepartment())) {
+//                throw new RuntimeException("Manager can assign tasks only within their department");
+//            }
+//        }
+//
+//        return taskRepository.save(task);
+//    }
 
 
     /**
