@@ -1,0 +1,12 @@
+String htmlBody = """
+<h3>Task Alert - %s</h3>
+<p><b>Unassigned tasks:</b> %d</p>
+<ul>
+    %s
+</ul>
+<p><b>Employees with no tasks:</b> %d</p>
+<ul>
+    %s
+</ul>
+<p>Please assign tasks to keep everyone productive!</p>
+""".formatted(LocalDateTime.now(), unassignedTasks.size(), /* build list */);

@@ -20,6 +20,10 @@ public interface TaskService {
     List<Task> getTasksAssignedBy(Long managerId);
 
 
+    void DeteleTask(Long TaskId);
+
+
+
 
 
 }

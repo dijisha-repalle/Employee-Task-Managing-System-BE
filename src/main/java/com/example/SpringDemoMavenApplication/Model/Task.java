@@ -31,4 +31,6 @@ public class Task {
     @JoinColumn(name = "assigned_by")
     private Employee assignedBy;
 
+    private TaskPriority priority;
+
 }

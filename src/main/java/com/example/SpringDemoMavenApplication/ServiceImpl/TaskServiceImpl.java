@@ -117,57 +117,6 @@ public class TaskServiceImpl implements TaskService {
         }
     }
 
-    /**
-     * ASSIGN TASK TO EMPLOYEE
-     * @param taskId
-     * @param request
-     * @return
-     */
-//    @Override
-//    public Task assignTask(Long taskId, AssignTaskRequest request) {
-//        Task task = taskRepository.findById(taskId)
-//                .orElseThrow(() -> new RuntimeException("Task not found: " + taskId));
-//
-//        Employee assignedTo = employeeRepository.findById(request.getAssignedTo())
-//                .orElseThrow(() -> new RuntimeException("Assigned-to employee does not exist"));
-//
-//        Employee assignedBy = employeeRepository.findById(request.getAssignedBy())
-//                .orElseThrow(() -> new RuntimeException("Assigned-by user does not exist"));
-//
-//        // 1️⃣ Only MANAGER or ADMIN can assign tasks
-//        if (!(assignedBy.getRole().equals(Role.MANAGER) || assignedBy.getRole().equals(Role.ADMIN))) {
-//            throw new RuntimeException("Only MANAGER or ADMIN can assign tasks");
-//        }
-//
-//        // 2️⃣ You cannot assign a task to MANAGER or ADMIN
-//        if (!(assignedTo.getRole().equals(Role.EMPLOYEE))) {
-//            throw new RuntimeException("Task can only be assigned to EMPLOYEE");
-//        }
-//
-//        // 3️⃣ Prevent self assignment
-//        if (assignedBy.getId().equals(assignedTo.getId())) {
-//            throw new RuntimeException("Users cannot assign tasks to themselves");
-//        }
-//
-//        // 4️⃣ Prevent double assignment
-//        if (task.getAssignedTo() != null) {
-//            throw new RuntimeException("Task is already assigned");
-//        }
-//
-//        // 5️⃣ Everything is valid → assign
-//        task.setAssignedTo(assignedTo);
-//        task.setAssignedBy(assignedBy);
-//        task.setStatus(TaskStatus.IN_PROGRESS);
-//
-//        // 6️⃣ Manager can assign tasks ONLY to their department
-//        if (assignedBy.getRole().equals(Role.MANAGER)) {
-//            if (!assignedBy.getDepartment().equals(assignedTo.getDepartment())) {
-//                throw new RuntimeException("Manager can assign tasks only within their department");
-//            }
-//        }
-//
-//        return taskRepository.save(task);
-//    }
 
 
     /**
@@ -197,4 +146,14 @@ public class TaskServiceImpl implements TaskService {
 
         return taskRepository.findByAssignedById(managerId);
     }
+
+    /**
+     * Delete Task
+     * @param TaskId
+     */
+    public void DeteleTask(Long TaskId) {
+        taskRepository.deleteById(TaskId);
+    }
+
+
 }

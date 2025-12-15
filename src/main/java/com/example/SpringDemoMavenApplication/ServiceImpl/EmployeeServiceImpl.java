@@ -1,6 +1,7 @@
 package com.example.SpringDemoMavenApplication.ServiceImpl;
 
 import com.example.SpringDemoMavenApplication.Model.Employee;
+import com.example.SpringDemoMavenApplication.Model.Role;
 import com.example.SpringDemoMavenApplication.Repository.EmployeeRepository;
 import com.example.SpringDemoMavenApplication.Service.EmployeeService;
 import org.springframework.data.domain.Page;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -64,5 +66,18 @@ public class EmployeeServiceImpl implements EmployeeService {
         return employeeRepository.findAll(pageable);
     }
 
+    @Override
+    public List<Employee> getEmployeeWithNoTask() {
+        return employeeRepository.findEmployeesWithNoTasks();
+    }
+
+    @Override
+    public List<String> getManagersAndAdminsEmails() {
+        return employeeRepository.findByRoleIn(List.of(Role.MANAGER, Role.ADMIN))
+                .stream()
+                .map(Employee::getEmail)
+                .filter(email -> email != null && !email.isBlank())
+                .collect(Collectors.toList());
+    }
 
 }

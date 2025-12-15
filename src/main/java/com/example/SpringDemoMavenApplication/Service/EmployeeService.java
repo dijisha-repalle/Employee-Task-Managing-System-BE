@@ -21,4 +21,7 @@ public interface EmployeeService {
 
     Page<Employee> getEmployeesWithPagination(int page, int size, String sortBy);
 
+    List<Employee> getEmployeeWithNoTask();
+
+    List<String> getManagersAndAdminsEmails();
 }

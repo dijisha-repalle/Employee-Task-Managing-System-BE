@@ -71,5 +71,11 @@ public class EmployeeController {
         return new ResponseEntity<>(employees, HttpStatus.OK);
     }
 
+    @GetMapping("/employees/no-tasks")
+    public ResponseEntity<List<Employee>> getEmployeesWithNoWork() {
+        List<Employee> employees = employeeService.getEmployeeWithNoTask();
+        return ResponseEntity.ok(employees);
+    }
+
 
 }
