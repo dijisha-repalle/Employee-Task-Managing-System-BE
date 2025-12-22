@@ -18,7 +18,7 @@ public class EmailService {
         message.setTo(to.toArray(new String[0]));
         message.setSubject(subject);
         message.setText(text);
-        message.setFrom("noreply@yourcompany.com");
+        message.setFrom("support@unifycare.ai");
 
         mailSender.send(message);
     }

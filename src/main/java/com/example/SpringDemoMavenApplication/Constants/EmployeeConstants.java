@@ -32,4 +32,7 @@ public class EmployeeConstants {
     public static final Set<Role> ALLOWED_ASSIGNER_ROLES = Set.of(Role.MANAGER, Role.ADMIN);
     public static final Role ALLOWED_ASSIGNEE_ROLE = Role.EMPLOYEE;
 
+
+
+
 }
